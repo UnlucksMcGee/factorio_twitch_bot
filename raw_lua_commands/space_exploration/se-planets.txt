@@ -1,0 +1,8 @@
+planets = {}
+for k,v in pairs(remote.call('space-exploration', 'get_known_zones', {force_name = 'player'})) do
+    local curZone = remote.call('space-exploration', 'get_zone_from_zone_index', {zone_index = k});
+    if curZone.type == 'planet' then
+        table.insert(planets, curZone.name);
+    end
+end
+rcon.print('Planets (' .. #planets .. '): ' .. table.concat(planets,', ') .. '.')

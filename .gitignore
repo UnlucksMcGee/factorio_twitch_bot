@@ -1,0 +1,7 @@
+.vscode/
+__pycache__/
+distribution/
+mysettings.txt
+statusfile.txt
+error_log.txt
+token.pkl

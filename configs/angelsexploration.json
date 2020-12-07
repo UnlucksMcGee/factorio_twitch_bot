@@ -1,0 +1,14 @@
+{
+    "heading": "Angel's Exploration Mod (by Arch666Angel)",
+    "priority": 7,
+    "commands": [
+        {
+            "heading": "Kill stats for new Psyker and Scarab enemies",
+            "command_name": "stats kills",
+            "overwrite": true,
+            "args_description": null,
+            "lua": "/silent-command local function convert_si(value, unit, decimal) local out = ''; if value > 1e12 then out = string.format('%.' .. decimal ..'f', value/1e12) .. 'T' .. unit; elseif value > 1e9 then out = string.format('%.' .. decimal ..'f', value/1e9) .. 'G' .. unit; elseif value > 1e6 then out = string.format('%.' .. decimal ..'f', value/1e6) .. 'M' .. unit; elseif value > 1e3 then out = string.format('%.' .. decimal ..'f', value/1e3) .. 'k' .. unit; else out = string.format('%.' .. decimal ..'f', value) .. unit; end return out; end local total_precision = defines.flow_precision_index.one_thousand_hours local precision = defines.flow_precision_index.one_hour; kill_stats = game.forces['player'].kill_count_statistics; kill_rate_table = {Spawners=0, Psykers=0, Scarabs=0, Biters=0, Spitters=0, Worms=0} kill_count_table = {Spawners=0, Psykers=0, Scarabs=0, Biters=0, Spitters=0, Worms=0} for name, _ in pairs(kill_stats.input_counts) do kill_rate = kill_stats.get_flow_count{name = name, input = true, precision_index = precision} kill_count = kill_stats.get_flow_count{name = name, count=true, input = true, precision_index = total_precision} if string.match(name, 'spawner') then kill_rate_table['Spawners'] = kill_rate_table['Spawners'] + kill_rate kill_count_table['Spawners'] = kill_count_table['Spawners'] + kill_count elseif string.match(name, 'psyker') then kill_rate_table['Psykers'] = kill_rate_table['Psykers'] + kill_rate kill_count_table['Psykers'] = kill_count_table['Psykers'] + kill_count elseif string.match(name, 'scarab') then kill_rate_table['Scarabs'] = kill_rate_table['Scarabs'] + kill_rate kill_count_table['Scarabs'] = kill_count_table['Scarabs'] + kill_count elseif string.match(name, 'biter') then kill_rate_table['Biters'] = kill_rate_table['Biters'] + kill_rate kill_count_table['Biters'] = kill_count_table['Biters'] + kill_count elseif string.match(name, 'spitter') then kill_rate_table['Spitters'] = kill_rate_table['Spitters'] + kill_rate kill_count_table['Spitters'] = kill_count_table['Spitters'] + kill_count elseif string.match(name, 'worm') then kill_rate_table['Worms'] = kill_rate_table['Worms'] + kill_rate kill_count_table['Worms'] = kill_count_table['Worms'] + kill_count end end output_string = 'Total kills (kill rate for last hour) - '; result = {} for k,v in pairs(kill_count_table) do table.insert(result, k .. ':' .. convert_si(v,'',0) .. ' (' .. convert_si(kill_rate_table[k],'/min',1) .. ')') end output_string = output_string .. table.concat(result, ' ') .. '.' rcon.print(output_string)",
+            "enabled_on_startup": false
+        }
+    ]
+}

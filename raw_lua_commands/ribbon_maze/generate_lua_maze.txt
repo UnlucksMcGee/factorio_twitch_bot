@@ -1,0 +1,111 @@
+-- 0 = water-green, water, landfill, chunk_not_charted
+-- else 1 = valid path
+-- Maze width is 2 more than the next odd number after settings.global['ribbon-maze-blocks']['value']
+-- e.g. 21 -> 23
+-- e.g. 32 -> 35
+
+local function get_maze_width_from_map_settings(n)
+-- Maze width is 2 more than the next odd number after n=settings.global['ribbon-maze-blocks']['value']
+    if n % 2 == 0 then
+     return n + 3
+    else
+     return n + 2
+    end
+end
+
+print(get_maze_width_from_map_settings(32))
+
+
+-- Use coord 16,16 within a chunk to determine the maze block's type (path or wall).
+-- Maze block size can be more than one chunk large: determined by map setting: settings.global['ribbon-maze-block-size']['value']  (Default: 32, cl0wn=64)
+
+-- Offset when jumping between blocks = settings.global['ribbon-maze-block-size']['value']
+-- Default: 32 (1 chunk)
+
+--You can translate a x,y Position to a chunk position by dividing the x/y values by 32. 
+
+---------------------------
+
+--check if world has ribbon maze mod, and limit cur_y to prevent excessive calculation
+
+
+local function reverse_table(t)
+    local reversedTable = {}
+    local itemCount = #t
+    for k, v in ipairs(t) do
+        reversedTable[itemCount + 1 - k] = v
+    end
+    return reversedTable
+end
+
+local function get_maze_width_from_map_settings(n)
+    if n % 2 == 0 then
+     return n + 3
+    else
+     return n + 2
+    end
+end
+
+local function last_line_blocked_line(maze_table)
+    if #maze_table < 2 then
+        return false
+    else
+        for _, val in ipairs(maze_table[#maze_table]) do
+            if val == 1 then
+                return false
+            end
+        end
+        return true
+    end
+end
+
+local maze = {}
+local maze_map_width_setting = settings.global['ribbon-maze-blocks']['value']
+local map_width = get_maze_width_from_map_settings(maze_map_width_setting)
+
+local block_offset = settings.global['ribbon-maze-block-size']['value']
+
+local spawn_chunk_x = 16
+local spawn_chunk_y = 16
+local num_blocks_to_leftmost = math.floor((map_width-1)/2)
+local left_maze_x = spawn_chunk_x - (num_blocks_to_leftmost*block_offset)
+local bottom_maze_y = spawn_chunk_y + 1*block_offset
+
+local cur_y = bottom_maze_y
+local tile_walls_names = {'water-green', 'water', 'landfill'}
+
+local function is_wall(x,y)
+    -- limit y value to prevent excessive calculation for large map
+    if y < -100000 then
+        return 0
+    end
+    if not game.forces['player'].is_chunk_charted(game.surfaces[1], {math.floor(x/32),math.floor(y/32)}) then
+        return 0
+    end
+
+    block_tile_name = game.surfaces[1].get_tile(x,y).name
+    if block_tile_name == 'water-green' or block_tile_name == 'water' or block_tile_name == 'landfill' then
+        return 0
+    else
+        return 1
+    end
+end
+
+repeat
+    table.insert(maze, {})
+    for i = 1,map_width,1 do
+        local cur_x = left_maze_x+(i-1)*block_offset
+        local path_status = is_wall(cur_x, cur_y)
+        table.insert(maze[#maze], path_status)
+    end
+    cur_y = cur_y - block_offset
+until( last_line_blocked_line(maze) )
+
+maze = reverse_table(maze)
+
+-- print maze
+out = ''
+for _, row in ipairs(maze) do
+ out = out .. table.concat(row, ' ') .. '\n'
+end
+game.player.print(out)

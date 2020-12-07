@@ -1,0 +1,51 @@
+local zone_name = '__ARG_VALUE__';
+-- If arg not given, then argvalue is not replaced
+if string.sub(zone_name,1,string.len('__A'))=='__A' then
+    zone_name = 'Nauvis'; 
+end
+local curZone = remote.call('space-exploration', 'get_zone_from_name', {zone_name = zone_name}); 
+
+local function convert_si(value, unit)
+    local out = ''; 
+    if value > 1e12 then
+        out = string.format('%.1f', value/1e12) .. 'T' .. unit;
+    elseif value > 1e9 then
+        out = string.format('%.1f', value/1e9) .. 'G' .. unit;
+    elseif value > 1e6 then
+        out = string.format('%.1f', value/1e6) .. 'M' .. unit;
+    elseif value > 1e3 then
+        out = string.format('%.1f', value/1e3) .. 'k' .. unit;
+    else
+        out = string.format('%.1f', value) .. unit;
+    end
+    return out;
+end 
+
+local precision = defines.flow_precision_index.one_second;
+local network = game.surfaces[curZone.surface_index].find_entities_filtered{radius=100, type = 'electric-pole', limit = 1, position = {0,0}}
+
+if network[1] ~=nil then
+    network = network[1].electric_network_statistics;
+    total_power = 0;
+    result = {}
+    for name, _ in pairs(network.output_counts) do
+        local energy = network.get_flow_count{name = name, input = false, precision_index = precision};
+        local entitycount = network.get_flow_count{name = name, count=true, input = false, precision_index = precision}
+        if entitycount > 0 then
+            total_power = total_power + energy*59.8;
+            table.insert(result, {count=entitycount, name=name, value=energy*59.8});
+        end
+    end
+
+    string_table = {};
+
+    for _, dict in ipairs(result) do
+        table.insert(string_table, dict['count'] .. ' ' .. dict['name'] .. ': ' .. convert_si(dict['value'],'W') .. ' (' .. string.format('%.1f', (dict['value']*100)/total_power) .. '%)');
+    end
+
+    output = curZone.name .. ' power stats - ' .. table.concat(string_table,' | ') .. '.';
+
+else
+    output = curZone.name .. ' power stats - No power poles found within 100 tiles of spawn.';
+end
+rcon.print(output)

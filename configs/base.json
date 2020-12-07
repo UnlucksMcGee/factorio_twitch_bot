@@ -1,0 +1,70 @@
+{
+    "heading": "Base game",
+    "priority": 0,
+    "commands": [
+        {
+            "heading": "Total playtime",
+            "command_name": "stats",
+            "overwrite": false,
+            "args_description": null,
+            "lua": "/silent-command local intervals = {{name='weeks', seconds = 60*60*24*7}, {name='days', seconds = 60*60*24}, {name='hours', seconds = 60*60}, {name='minutes', seconds = 60}, {name='seconds', seconds = 1}}; local seconds = math.floor(game.tick/60); local result = {} for _, item in ipairs(intervals) do local name = item['name']; local count = item['seconds']; local value = math.floor(seconds / count); if value > 0 then seconds = seconds - value * count; if value == 1 then name = name:sub(1, -2); end table.insert(result, value .. ' ' .. name); end end if result[2] then result = {result[1], result[2]}; else result = {(result[1] or 0)}; end rcon.print('Total playtime: ' .. table.concat(result,', ') .. '.')",
+            "enabled_on_startup": true
+        },
+        {
+            "heading": "Power stats",
+            "command_name": "stats power",
+            "overwrite": true,
+            "args_description": null,
+            "lua": "/silent-command local function convert_si(value, unit) local out = ''; if value > 1e12 then out = string.format('%.1f', value/1e12) .. 'T' .. unit; elseif value > 1e9 then out = string.format('%.1f', value/1e9) .. 'G' .. unit; elseif value > 1e6 then out = string.format('%.1f', value/1e6) .. 'M' .. unit; elseif value > 1e3 then out = string.format('%.1f', value/1e3) .. 'k' .. unit; else out = string.format('%.1f', value) .. unit; end return out; end local precision = defines.flow_precision_index.one_second; local network = game.surfaces[1].find_entities_filtered{radius=100, type = 'electric-pole', limit = 1, position = {0,0}}[1].electric_network_statistics; total_power = 0; result = {} for name, _ in pairs(network.output_counts) do local energy = network.get_flow_count{name = name, input = false, precision_index = precision}; local entitycount = network.get_flow_count{name = name, count=true, input = false, precision_index = precision} if entitycount > 0 then total_power = total_power + energy*59.8; table.insert(result, {count=entitycount, name=name, value=energy*59.8}); end end string_table = {}; for _, dict in ipairs(result) do table.insert(string_table, dict['count'] .. ' ' .. dict['name'] .. ': ' .. convert_si(dict['value'],'W') .. ' (' .. string.format('%.1f', (dict['value']*100)/total_power) .. '%)'); end output = 'Nauvis power stats - ' .. table.concat(string_table,' | ') .. '.'; rcon.print(output)",
+            "enabled_on_startup": true
+        },
+        {
+            "heading": "Science production",
+            "command_name": "stats science",
+            "overwrite": true,
+            "args_description": null,
+            "lua": "/silent-command local science_packs = {{name='automation-science-pack'}, {name='logistic-science-pack'}, {name='military-science-pack'}, {name='chemical-science-pack'}, {name='production-science-pack'}, {name='utility-science-pack'}, {name='space-science-pack'}}; local science_colors = {{color='R'}, {color='G'}, {color='M'}, {color='B'}, {color='P'}, {color='Y'}, {color='W'}}; local function convert_si(value, unit) local out = ''; if value > 1e12 then out = string.format('%.1f', value/1e12) .. 'T' .. unit; elseif value > 1e9 then out = string.format('%.1f', value/1e9) .. 'G' .. unit; elseif value > 1e6 then out = string.format('%.1f', value/1e6) .. 'M' .. unit; elseif value > 1e3 then out = string.format('%.1f', value/1e3) .. 'k' .. unit; else out = string.format('%.1f', value) .. unit; end return out; end output_string = 'Science production (last hour):' for i, science in ipairs(science_packs) do local production = game.forces['player'].item_production_statistics.get_flow_count{name=science['name'], input=true, precision_index=defines.flow_precision_index.one_hour} output_string = output_string .. ' ' .. science_colors[i]['color'] .. ':' .. convert_si(production, '/m'); end output_string = output_string .. '.' rcon.print(output_string)",
+            "enabled_on_startup": true
+        },
+        {
+            "heading": "Kill stats",
+            "command_name": "stats kills",
+            "overwrite": true,
+            "args_description": null,
+            "lua": "/silent-command local function convert_si(value, unit, decimal) local out = ''; if value > 1e12 then out = string.format('%.' .. decimal ..'f', value/1e12) .. 'T' .. unit; elseif value > 1e9 then out = string.format('%.' .. decimal ..'f', value/1e9) .. 'G' .. unit; elseif value > 1e6 then out = string.format('%.' .. decimal ..'f', value/1e6) .. 'M' .. unit; elseif value > 1e3 then out = string.format('%.' .. decimal ..'f', value/1e3) .. 'k' .. unit; else out = string.format('%.' .. decimal ..'f', value) .. unit; end return out; end local total_precision = defines.flow_precision_index.one_thousand_hours local precision = defines.flow_precision_index.one_hour; kill_stats = game.forces['player'].kill_count_statistics; kill_rate_table = {Spawners=0, Biters=0, Spitters=0, Worms=0} kill_count_table = {Spawners=0, Biters=0, Spitters=0, Worms=0} for name, _ in pairs(kill_stats.input_counts) do kill_rate = kill_stats.get_flow_count{name = name, input = true, precision_index = precision} kill_count = kill_stats.get_flow_count{name = name, count=true, input = true, precision_index = total_precision} if string.match(name, 'spawner') then kill_rate_table['Spawners'] = kill_rate_table['Spawners'] + kill_rate; kill_count_table['Spawners'] = kill_count_table['Spawners'] + kill_count; elseif string.match(name, 'biter') then kill_rate_table['Biters'] = kill_rate_table['Biters'] + kill_rate; kill_count_table['Biters'] = kill_count_table['Biters'] + kill_count; elseif string.match(name, 'spitter') then kill_rate_table['Spitters'] = kill_rate_table['Spitters'] + kill_rate; kill_count_table['Spitters'] = kill_count_table['Spitters'] + kill_count; elseif string.match(name, 'worm') then kill_rate_table['Worms'] = kill_rate_table['Worms'] + kill_rate; kill_count_table['Worms'] = kill_count_table['Worms'] + kill_count; end end output_string = 'Total kills (kill rate for last hour) - '; result = {} for k,v in pairs(kill_count_table) do table.insert(result, k .. ':' .. convert_si(v,'',0) .. ' (' .. convert_si(kill_rate_table[k],'/min',1) .. ')') end output_string = output_string .. table.concat(result, ' ') .. '.' rcon.print(output_string)",
+            "enabled_on_startup": true
+        },
+        {
+            "heading": "Item production stats",
+            "command_name": "stats production",
+            "overwrite": true,
+            "args_description": "<internal-item-name>",
+            "lua": "/silent-command local function convert_si(value, unit) local out = ''; if value > 1e12 then out = string.format('%.2f', value/1e12) .. 'T' .. unit; elseif value > 1e9 then out = string.format('%.2f', value/1e9) .. 'G' .. unit; elseif value > 1e6 then out = string.format('%.2f', value/1e6) .. 'M' .. unit; elseif value > 1e3 then out = string.format('%.2f', value/1e3) .. 'k' .. unit; else out = string.format('%.2f', value) .. unit; end return out; end local total = game.forces['player'].item_production_statistics.get_input_count('__ARG_VALUE__') local production_rate = game.forces['player'].item_production_statistics.get_flow_count{name='__ARG_VALUE__', input=true, precision_index=defines.flow_precision_index.ten_minutes} output_string = {'', 'Total ', game.item_prototypes['__ARG_VALUE__'].localised_name, ' production (rate for last 10min): ', convert_si(total, ''), ' (', convert_si(production_rate, '/min'), ').'}; rcon.print(output_string)",
+            "enabled_on_startup": true
+        },
+        {
+            "heading": "Item consumption stats",
+            "command_name": "stats consumption",
+            "overwrite": true,
+            "args_description": "<internal-item-name>",
+            "lua": "/silent-command local function convert_si(value, unit) local out = ''; if value > 1e12 then out = string.format('%.2f', value/1e12) .. 'T' .. unit; elseif value > 1e9 then out = string.format('%.2f', value/1e9) .. 'G' .. unit; elseif value > 1e6 then out = string.format('%.2f', value/1e6) .. 'M' .. unit; elseif value > 1e3 then out = string.format('%.2f', value/1e3) .. 'k' .. unit; else out = string.format('%.2f', value) .. unit; end return out; end local total = game.forces['player'].item_production_statistics.get_output_count('__ARG_VALUE__') local consumption_rate = game.forces['player'].item_production_statistics.get_flow_count{name='__ARG_VALUE__', input=false, precision_index=defines.flow_precision_index.ten_minutes} output_string = {'', 'Total ', game.item_prototypes['__ARG_VALUE__'].localised_name, ' consumption (rate for last 10min): ', convert_si(total, ''), ' (', convert_si(consumption_rate, '/min'), ').'}; rcon.print(output_string)",
+            "enabled_on_startup": true
+        },
+        {
+            "heading": "Ribbon World - West Progress",
+            "command_name": "stats",
+            "overwrite": false,
+            "args_description": null,
+            "lua": "/silent-command local x=0; while(game.surfaces[1].is_chunk_generated({x,0})) do x = x - 1; end west = -(x+1)*32; out = 'West progress: ' .. west .. ' tiles (' .. string.format('%.1f', west/10000) .. '%).'; rcon.print(out)",
+            "enabled_on_startup": false
+        },
+        {
+            "heading": "Ribbon World - East Progress",
+            "command_name": "stats",
+            "overwrite": false,
+            "args_description": null,
+            "lua": "/silent-command local x=0; while(game.surfaces[1].is_chunk_generated({x,0})) do x = x + 1; end east = x*32; out = 'East progress: ' .. east .. ' tiles (' .. string.format('%.1f', east/10000) .. '%).'; rcon.print(out)",
+            "enabled_on_startup": false
+        }
+    ]
+}

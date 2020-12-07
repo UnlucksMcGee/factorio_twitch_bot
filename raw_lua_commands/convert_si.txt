@@ -1,0 +1,15 @@
+local function convert_si(value, unit)
+ local out = '';
+ if value > 1e12 then
+  out = string.format('%.2f', value/1e12) .. 'T' .. unit;
+ elseif value > 1e9 then
+  out = string.format('%.2f', value/1e9) .. 'G' .. unit;
+ elseif value > 1e6 then
+  out = string.format('%.2f', value/1e6) .. 'M' .. unit;
+ elseif value > 1e3 then
+  out = string.format('%.2f', value/1e3) .. 'k' .. unit;
+ else
+  out = string.format('%.2f', value) .. unit;
+ end
+ return out;
+end

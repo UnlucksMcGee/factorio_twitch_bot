@@ -1,0 +1,32 @@
+-- Table is made to be a sequence to preserve ordering
+
+/c local intervals = {
+ {name='weeks', seconds = 60*60*24*7},
+ {name='days', seconds = 60*60*24},
+ {name='hours', seconds = 60*60},
+ {name='minutes', seconds = 60},
+ {name='seconds', seconds = 1},
+}
+
+seconds = math.floor(game.tick/60)
+local result = {}
+
+for _, item in ipairs(intervals) do
+ local name = item['name']
+ local count = item['seconds']
+ local value = math.floor(seconds / count)
+ if value > 0 then
+  seconds = seconds - value * count
+  if value == 1 then
+   name = name:sub(1, -2)
+  end
+  table.insert(result, value .. " " .. name)
+ end
+end
+
+if result[2] then
+ result = {result[1], result[2]}
+else
+ result = {(result[1] or 0)}
+end
+game.player.print(table.concat(result,', '))

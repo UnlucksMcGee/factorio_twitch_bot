@@ -1,0 +1,14 @@
+{
+    "heading": "Bob's Tech Mod (by Bobingabout)",
+    "priority": 1,
+    "commands": [
+        {
+            "heading": "Science production using Bob's naming",
+            "command_name": "stats science",
+            "overwrite": true,
+            "args_description": null,
+            "lua": "/silent-command local science_packs = {{name='automation-science-pack'}, {name='logistic-science-pack'}, {name='military-science-pack'}, {name='chemical-science-pack'}, {name='advanced-logistic-science-pack'}, {name='production-science-pack'}, {name='utility-science-pack'}, {name='space-science-pack'}}; local science_colors = {{color='Y'}, {color='R'}, {color='M'}, {color='B'}, {color='Pink'}, {color='Purple'}, {color='G'}, {color='W'}}; local function convert_si(value, unit) local out = ''; if value > 1e12 then out = string.format('%.1f', value/1e12) .. 'T' .. unit; elseif value > 1e9 then out = string.format('%.1f', value/1e9) .. 'G' .. unit; elseif value > 1e6 then out = string.format('%.1f', value/1e6) .. 'M' .. unit; elseif value > 1e3 then out = string.format('%.1f', value/1e3) .. 'k' .. unit; else out = string.format('%.1f', value) .. unit; end return out; end output_string = 'Bobs Mod Science production (last hour):' for i, science in ipairs(science_packs) do local production = game.forces['player'].item_production_statistics.get_flow_count{name=science['name'], input=true, precision_index=defines.flow_precision_index.one_hour} output_string = output_string .. ' ' .. science_colors[i]['color'] .. ':' .. convert_si(production, '/m'); end output_string = output_string .. '.' rcon.print(output_string)",
+            "enabled_on_startup": false
+        }
+    ]
+}

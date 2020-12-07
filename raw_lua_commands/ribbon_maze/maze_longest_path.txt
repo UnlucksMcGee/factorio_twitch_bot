@@ -1,0 +1,139 @@
+-- DO NOT USE, VERY SLOW ON LARGE MAPS
+/c
+local function reverse_table(t)
+    local reversedTable = {}
+    local itemCount = #t
+    for k, v in ipairs(t) do
+        reversedTable[itemCount + 1 - k] = v
+    end
+    return reversedTable
+end
+
+local function get_maze_width_from_map_settings(n)
+    if n % 2 == 0 then
+     return n + 3
+    else
+     return n + 2
+    end
+end
+
+local function last_line_blocked_line(maze_table)
+    if #maze_table < 2 then
+        return false
+    else
+        for _, val in ipairs(maze_table[#maze_table]) do
+            if val == 1 then
+                return false
+            end
+        end
+        return true
+    end
+end
+
+local maze = {}
+local maze_map_width_setting = settings.global['ribbon-maze-blocks']['value']
+local map_width = get_maze_width_from_map_settings(maze_map_width_setting)
+
+local block_offset = settings.global['ribbon-maze-block-size']['value']
+
+local spawn_chunk_x = 16
+local spawn_chunk_y = 16
+local num_blocks_to_leftmost = math.floor((map_width-1)/2)
+local left_maze_x = spawn_chunk_x - (num_blocks_to_leftmost*block_offset)
+local bottom_maze_y = spawn_chunk_y + 1*block_offset
+
+local cur_y = bottom_maze_y
+local tile_walls_names = {'water-green', 'water', 'landfill'}
+
+local function is_wall(x,y)
+    if y < -100000 then
+        return 0
+    end
+    if not game.forces['player'].is_chunk_charted(game.surfaces[1], {math.floor(x/32),math.floor(y/32)}) then
+        return 0
+    end
+
+    block_tile_name = game.surfaces[1].get_tile(x,y).name
+    if block_tile_name == 'water-green' or block_tile_name == 'water' or block_tile_name == 'landfill' then
+        return 0
+    else
+        return 1
+    end
+end
+
+repeat
+    table.insert(maze, {})
+    for i = 1,map_width,1 do
+        local cur_x = left_maze_x+(i-1)*block_offset
+        local path_status = is_wall(cur_x, cur_y)
+        table.insert(maze[#maze], path_status)
+    end
+    cur_y = cur_y - block_offset
+until( last_line_blocked_line(maze) )
+
+maze = reverse_table(maze)
+
+function copy_maze(obj)
+    local out = {}
+    for _,row in ipairs(obj) do
+        table.insert(out,{})
+        for _,v in ipairs(row) do
+            table.insert(out[#out], v)
+        end
+    end
+  return out
+end
+
+local start_x = math.floor((map_width-1)/2)+1
+local start_y = #maze -1
+
+WALL = 0
+EMPTY = 1
+VISITED = 2
+
+local function longest_path(inp)
+    local longest = ''
+    local max_length = 0
+    for _, path in ipairs(inp) do
+        if string.len(path) > max_length then
+            max_length = string.len(path)
+            longest = path
+        end
+    end
+    
+    return longest
+
+end
+
+local function solve(inp_grid, x, y)
+    grid = copy_maze(inp_grid)
+
+    if grid[y][x] == WALL or grid[y][x] == VISITED then
+        return 'w'
+    end
+    grid[y][x] = VISITED
+
+    local candidates = {}
+    if x+1 <= #grid[y] and grid[y][x+1] ~= VISITED and grid[y][x+1] ~= WALL then
+        table.insert(candidates, 'r' .. solve(grid, x+1, y))
+    end
+    if y-1 >= 1 and grid[y-1][x] ~= VISITED and grid[y-1][x] ~= WALL then
+        table.insert(candidates, 'u' .. solve(grid, x, y-1))
+    end
+    if x-1 >= 1 and grid[y][x-1] ~= VISITED and grid[y][x-1] ~= WALL then
+        table.insert(candidates, 'l' .. solve(grid, x-1, y))
+    end
+    if y+1 <= #grid and grid[y+1][x] ~= VISITED and grid[y+1][x] ~= WALL then
+        table.insert(candidates, 'd' .. solve(grid, x, y+1))
+    end
+
+
+    if #candidates == 0 then
+        grid[y][x] = 'w'
+    else
+        grid[y][x] = longest_path(candidates)
+    end
+    return grid[y][x]
+end
+
+game.player.print(solve(maze, start_x, start_y))

@@ -1,0 +1,38 @@
+{
+    "heading": "Stats help",
+    "priority": 999,
+    "commands": [
+        {
+            "heading": "Show detailed help for stats commands in !stats",
+            "command_name": "stats",
+            "overwrite": false,
+            "args_description": null,
+            "lua": "/silent-command rcon.print('Also try: __STATS_HELP__')",
+            "enabled_on_startup": true
+        },
+        {
+            "heading": "Suggest to try !stats help",
+            "command_name": "stats",
+            "overwrite": false,
+            "args_description": null,
+            "lua": "/silent-command rcon.print('Try \"!stats help\" for more.')",
+            "enabled_on_startup": false
+        },
+        {
+            "heading": "Show detailed help for stats commands",
+            "command_name": "stats help",
+            "overwrite": true,
+            "args_description": null,
+            "lua": "/silent-command rcon.print('Try: __STATS_HELP__')",
+            "enabled_on_startup": true
+        },
+        {
+            "heading": "Show info about this chatbot",
+            "command_name": "stats about",
+            "overwrite": true,
+            "args_description": null,
+            "lua": "/silent-command rcon.print('This Factorio Twitch chatbot was developed by UnlucksMcGee. It is available on his github page (with the same username).')",
+            "enabled_on_startup": true
+        }
+    ]
+}

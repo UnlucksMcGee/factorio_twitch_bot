@@ -1,0 +1,54 @@
+{
+    "heading": "Space Exploration (by Earendel)",
+    "priority": 3,
+    "commands": [
+        {
+            "heading": "Get player's current planet",
+            "command_name": "stats",
+            "overwrite": false,
+            "args_description": null,
+            "lua": "/silent-command local curZone = remote.call('space-exploration', 'get_zone_from_surface_index', {surface_index = game.players['__FACTORIO_USERNAME__'].surface.index}); rcon.print('__FACTORIO_USERNAME__ is currently viewing ' .. curZone.type .. ': ' .. curZone.name .. '.')",
+            "enabled_on_startup": false
+        },
+        {
+            "heading": "Current planets",
+            "command_name": "stats planets",
+            "overwrite": true,
+            "args_description": null,
+            "lua": "/silent-command planets = {} for k,v in pairs(remote.call('space-exploration', 'get_known_zones', {force_name = 'player'})) do local curZone = remote.call('space-exploration', 'get_zone_from_zone_index', {zone_index = k}); if curZone.type == 'planet' then table.insert(planets, curZone.name); end end rcon.print('Planets (' .. #planets .. '): ' .. table.concat(planets,', ') .. '.')",
+            "enabled_on_startup": false
+        },
+        {
+            "heading": "Current moons",
+            "command_name": "stats moons",
+            "overwrite": true,
+            "args_description": null,
+            "lua": "/silent-command moons = {} for k,v in pairs(remote.call('space-exploration', 'get_known_zones', {force_name = 'player'})) do local curZone = remote.call('space-exploration', 'get_zone_from_zone_index', {zone_index = k}); if curZone.type == 'moon' then table.insert(moons, curZone.name); end end rcon.print('Moons (' .. #moons .. '): ' .. table.concat(moons,', ') .. '.')",
+            "enabled_on_startup": false
+        },
+        {
+            "heading": "Surface stats",
+            "command_name": "stats surface",
+            "overwrite": true,
+            "args_description": "<planet/moon name>",
+            "lua": "/silent-command local curZone = remote.call('space-exploration', 'get_zone_from_name', {zone_name = '__ARG_VALUE__'}); local zone_enemy_base_size ='?' if curZone.controls['enemy-base'] ~= nil then zone_enemy_base_size = curZone.controls['enemy-base'].size else zone_enemy_base_size = game.surfaces[curZone.surface_index].map_gen_settings.autoplace_controls['enemy-base'].size end; local threat = math.floor(math.max(0, math.min(3, zone_enemy_base_size) / 3)*100+0.5); rcon.print(curZone.name .. ' (' .. curZone.type .. ') stats - Radius: ' .. (math.floor(curZone.radius+0.5) or '?') .. ', Day length: ' .. string.format('%.2f', curZone.ticks_per_day/3600) .. 'min, Primary resource: ' .. curZone.primary_resource .. ', Threat: ' .. (threat or '?') .. '%')",
+            "enabled_on_startup": false
+        },
+        {
+            "heading": "Power stats",
+            "command_name": "stats power",
+            "overwrite": true,
+            "args_description": "<planet/moon name>",
+            "lua": "/silent-command local zone_name = '__ARG_VALUE__'; if string.sub(zone_name,1,string.len('__A'))=='__A' then zone_name = 'Nauvis'; end local curZone = remote.call('space-exploration', 'get_zone_from_name', {zone_name = zone_name}); local function convert_si(value, unit) local out = ''; if value > 1e12 then out = string.format('%.1f', value/1e12) .. 'T' .. unit; elseif value > 1e9 then out = string.format('%.1f', value/1e9) .. 'G' .. unit; elseif value > 1e6 then out = string.format('%.1f', value/1e6) .. 'M' .. unit; elseif value > 1e3 then out = string.format('%.1f', value/1e3) .. 'k' .. unit; else out = string.format('%.1f', value) .. unit; end return out; end local precision = defines.flow_precision_index.one_second; local network = game.surfaces[curZone.surface_index].find_entities_filtered{radius=100, type = 'electric-pole', limit = 1, position = {0,0}} if network[1] ~=nil then network = network[1].electric_network_statistics; total_power = 0; result = {} for name, _ in pairs(network.output_counts) do local energy = network.get_flow_count{name = name, input = false, precision_index = precision}; local entitycount = network.get_flow_count{name = name, count=true, input = false, precision_index = precision} if entitycount > 0 then total_power = total_power + energy*59.8; table.insert(result, {count=entitycount, name=name, value=energy*59.8}); end end string_table = {}; for _, dict in ipairs(result) do table.insert(string_table, dict['count'] .. ' ' .. dict['name'] .. ': ' .. convert_si(dict['value'],'W') .. ' (' .. string.format('%.1f', (dict['value']*100)/total_power) .. '%)'); end output = curZone.name .. ' power stats - ' .. table.concat(string_table,' | ') .. '.'; else output = curZone.name .. ' power stats - No power poles found within 100 tiles of spawn.'; end rcon.print(output)",
+            "enabled_on_startup": false
+        },
+        {
+            "heading": "Science production",
+            "command_name": "stats science",
+            "overwrite": true,
+            "args_description": null,
+            "lua": "/silent-command local science_packs = {{name='automation-science-pack'}, {name='logistic-science-pack'}, {name='military-science-pack'}, {name='chemical-science-pack'}, {name='production-science-pack'}, {name='utility-science-pack'}, {name='se-astronomic-science-pack-1'}, {name='se-astronomic-science-pack-2'}, {name='se-astronomic-science-pack-3'}, {name='se-astronomic-science-pack-4'}, {name='se-biological-science-pack-1'}, {name='se-biological-science-pack-2'}, {name='se-biological-science-pack-3'}, {name='se-biological-science-pack-4'}, {name='se-energy-science-pack-1'}, {name='se-energy-science-pack-2'}, {name='se-energy-science-pack-3'}, {name='se-energy-science-pack-4'}, {name='se-material-science-pack-1'}, {name='se-material-science-pack-2'}, {name='se-material-science-pack-3'}, {name='se-material-science-pack-4'}, {name='se-deep-space-science-pack-1'}, {name='se-deep-space-science-pack-2'}, {name='se-deep-space-science-pack-3'}, {name='se-deep-space-science-pack-4'}}; local science_colors = {{color='R'}, {color='G'}, {color='M'}, {color='B'}, {color='P'}, {color='Y'}, {color='AS1'}, {color='AS2'}, {color='AS3'}, {color='AS4'}, {color='BS1'}, {color='BS2'}, {color='BS3'}, {color='BS4'}, {color='ES1'}, {color='ES2'}, {color='ES3'}, {color='ES4'}, {color='MS1'}, {color='MS2'}, {color='MS3'}, {color='MS4'}, {color='DS1'}, {color='DS2'}, {color='DS3'}, {color='DS4'}} local krastorio2_active = false; for modname, _ in pairs(game.active_mods) do if string.sub(modname,1,string.len('Krastorio2'))=='Krastorio2' then krastorio2_active = true end end if krastorio2_active == true then table.insert(science_packs, {name='basic-tech-card'}) table.insert(science_packs, {name='matter-tech-card'}) table.insert(science_packs, {name='advanced-tech-card'}) table.insert(science_packs, {name='singularity-tech-card'}) table.insert(science_colors, {color='Basic'}) table.insert(science_colors, {color='Matter'}) table.insert(science_colors, {color='Advanced'}) table.insert(science_colors, {color='Singularity'}) end local function convert_si(value, unit) local out = ''; if value > 1e12 then out = string.format('%.1f', value/1e12) .. 'T' .. unit; elseif value > 1e9 then out = string.format('%.1f', value/1e9) .. 'G' .. unit; elseif value > 1e6 then out = string.format('%.1f', value/1e6) .. 'M' .. unit; elseif value > 1e3 then out = string.format('%.1f', value/1e3) .. 'k' .. unit; else out = string.format('%.1f', value) .. unit; end return out; end output_string = 'Science production (last hour):' for i, science in ipairs(science_packs) do local production = game.forces['player'].item_production_statistics.get_flow_count{name=science['name'], input=true, precision_index=defines.flow_precision_index.one_hour} if production > 0 then output_string = output_string .. ' ' .. science_colors[i]['color'] .. ':' .. convert_si(production, '/m'); end end if output_string == 'Science production (last hour):' then output_string = output_string .. ' None.' else output_string = output_string .. '.' end rcon.print(output_string)",
+            "enabled_on_startup": false
+        }
+    ]
+}

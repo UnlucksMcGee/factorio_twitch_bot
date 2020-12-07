@@ -1,0 +1,48 @@
+-- 1 is valid path, 0 is wall
+local maze = {
+ {0, 0, 0, 0, 0, 0, 0, 0},
+ {0, 1, 0, 1, 1, 0, 1, 0},
+ {0, 1, 1, 1, 0, 0, 1, 0},
+ {0, 0, 0, 1, 1, 1, 1, 0},
+ {0, 0, 1, 1, 0, 0, 1, 0},
+ {0, 0, 0, 0, 0, 0, 0, 0},
+}
+
+local deadends = 0
+for row_idx, row in ipairs(maze) do
+ for col_idx, col in ipairs(row) do
+  if maze[row_idx][col_idx] == 1 then
+   local num_blocked_sides = 0
+   -- check right
+   if col_idx + 1 <= #row then
+    if maze[row_idx][col_idx + 1] == 0 then
+     num_blocked_sides = num_blocked_sides + 1
+    end
+   end
+   -- check up
+   if row_idx - 1 >= 1 then
+    if maze[row_idx - 1][col_idx] == 0 then
+     num_blocked_sides = num_blocked_sides + 1
+    end
+   end
+   -- check left
+   if col_idx - 1 >= 1 then
+    if maze[row_idx][col_idx - 1] == 0 then
+     num_blocked_sides = num_blocked_sides + 1
+    end
+   end
+   -- check down
+   if row_idx + 1 <= #maze then
+    if maze[row_idx + 1][col_idx] == 0 then
+     num_blocked_sides = num_blocked_sides + 1
+    end
+   end
+
+   if num_blocked_sides == 3 then
+    deadends = deadends + 1
+   end
+  end
+ end
+end
+
+print(deadends)

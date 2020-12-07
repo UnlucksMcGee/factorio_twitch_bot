@@ -1,0 +1,6 @@
+TWITCH_CHANNEL = my_channel_name
+FACTORIO_USERNAME = my_username
+BOT_CLIENT_ID = abcdefghijklmnopqrstuvwxyz0123
+RCON_IP = 123.456.789.123
+RCON_PORT = 25575
+RCON_PASSWORD = my_password
