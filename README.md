@@ -42,14 +42,14 @@ Before starting the application, check the `settings.txt` file to update it's va
 
 (If you are running the server yourself, use the following command line arguments: `--rcon-port 25575 --rcon-password my_password`)
 
-#### 2. Prepare factorio server
+#### 3. Prepare factorio server
 
 The application runs commands on the server, thus achievements will be disabled for the savegame.
 To enable commands on the server, you need to repeat a command twice.
 
 * Enable commands by typing "`/c`" in chat twice.
 
-#### 3. Start the application
+#### 4. Start the application
 
 When you launch the application on Windows, the Microsoft SmartScreen may pop up since the exe is by an "unknown publisher". If I want to avoid that I'd have to pay $400+ each year for a digital certificate...
 
@@ -59,7 +59,7 @@ On first launch, it will open your browser and ask you to authorize the `Factori
 
 Then copy the oauth token and paste it into the textbox of the application.
 
-#### 4. Start the chatbot
+#### 5. Start the chatbot
 
 After selecting the appropriate commands you want enabled, click `Start Bot`, which will attempt to connect to twitch and the factorio server, and thereafter it will respond to commands received in chat.
 
