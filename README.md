@@ -114,7 +114,7 @@ This science production command also includes support for if you are using space
 * Suggest to try !stats help (Appended to `!stats`) e.g. "Try '!stats help' for more."
 * Show detailed help for stats commands (`!stats help`) e.g. "Try: !stats | !stats about | !stats consumption \<internal-item-name\> | !stats kills | !stats maze | !stats power | !stats production \<internal-item-name\> | !stats science"
 
-## Issues
+## Troubleshooting
 
 Errors are written to a `error_log.txt` file.
 If you lose internet connection, you may need to stop and start the bot again.
@@ -130,7 +130,7 @@ Description of the json file properties:
 * `heading` is the title displayed in the GUI
 * `priority` defines the ordering in the application, as well as if a command should be overwritten by another config file's command (lower = less priority). Therefore if `!stats science` is enabled in base game and bob's. Then the bob's science command will overwrite the base game one, as it has a higher priority.
 * `overwrite` defines if this command should overwrite a previously loaded implementation. Example: the science command of mods should overwrite the base game's science command. If false, then it appends it's result to the command.
-* `args description` is for describing the argument that the command expects. `null` if not arg expected.
+* `args description` is for describing the argument that the command expects. `null` if no arg expected.
 * `lua` is the actual code that gets run on the server. Note: prefix it with `/silent-command`, and the resulting output from `rcon.print` is what appears in the twitch chat message.
 * `enabled_on_startup` defines whether this command should be already ticked when the application is launched.
 
@@ -142,5 +142,6 @@ Within the lua code, there are 3 special strings that get replaced at runtime.
 
 ## Possible future additions
 
+* Add support for Pyanodon's AlienLife mod which adds an extra science pack.
 * Add support for Angel's mod science when using the 'Technology Overhaul' map setting. This setting add's science analyzers, datacores and alien life plant samples to research tech, instead of using science packs.
 * Add option to auto-detect mods/settings and enable all compatible commands.
