@@ -11,6 +11,14 @@
             "enabled_on_startup": true
         },
         {
+            "heading": "Evolution factor",
+            "command_name": "stats",
+            "overwrite": false,
+            "args_description": null,
+            "lua": "/silent-command local total = game.forces.enemy.evolution_factor_by_pollution + game.forces.enemy.evolution_factor_by_time + game.forces.enemy.evolution_factor_by_killing_spawners; local output = 'Evolution factor: ' .. string.format('%.4f', game.forces.enemy.evolution_factor) .. ' (Time ' .. string.format('%.0f', (game.forces.enemy.evolution_factor_by_time/total)*100) .. '% | Pollution ' .. string.format('%.0f', (game.forces.enemy.evolution_factor_by_pollution/total)*100) .. '% | Spawner kills ' .. string.format('%.0f', (game.forces.enemy.evolution_factor_by_killing_spawners/total)*100) .. '%).'; rcon.print(output)",
+            "enabled_on_startup": true
+        },
+        {
             "heading": "Power stats",
             "command_name": "stats power",
             "overwrite": true,
