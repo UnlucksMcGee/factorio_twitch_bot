@@ -1,6 +1,6 @@
 #!/bin/bash
 source ~/miniconda/etc/profile.d/conda.sh
-conda activate temp
+conda activate factoriotwitchbot
 rm -rf ./distribution
 mkdir distribution
 cd ./distribution
