@@ -115,7 +115,7 @@ async def process_msg(logfile, rcon_client, server, twitch_channel, irc_response
                     print(msg)
         
         output_string = " ".join(out)
-        await send_message(server, twitch_channel, f"/me {output_string}"[:MESSAGE_LIMIT])
+        await send_message(server, twitch_channel, f"{output_string}"[:MESSAGE_LIMIT])
 
 
 async def chat_response(server):

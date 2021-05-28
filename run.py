@@ -16,7 +16,7 @@ import requests
 from twitch_bot import main as main_bot
 import factorio_rcon # To ensure pyinstaller bundles it
 
-VERSION="1.0"
+VERSION="1.0.2"
 
 DEFAULT_TWITCH_CHANNEL = "my_channel_name"
 DEFAULT_FACTORIO_USERNAME = "my_username"

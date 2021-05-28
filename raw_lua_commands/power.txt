@@ -13,7 +13,7 @@ local function convert_si(value, unit)
  end
  return out;
 end
-local precision = defines.flow_precision_index.one_second; 
+local precision = defines.flow_precision_index.five_seconds; 
 local network = game.surfaces[1].find_entities_filtered{radius=100, type = 'electric-pole', limit = 1, position = {0,0}}[1].electric_network_statistics;
 
 total_power = 0;
