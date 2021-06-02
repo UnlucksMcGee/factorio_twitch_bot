@@ -10,9 +10,9 @@ The application gives you the option to select which commands to enable.
 
 NOTE: The application runs commands on the server, thus achievements will be disabled for the savegame.
 
-## How to run
+## How to setup
 
-[Youtube tutorial](https://youtu.be/QMk73avr_fE) for Windows 10 and running a headless Factorio server locally on your pc.
+Follow this [Youtube tutorial](https://youtu.be/yuh6u7ja-nw) for Windows 10, which guides you through the text explanation below.
 
 Download the latest release [here](https://github.com/UnlucksMcGee/factorio_twitch_bot/releases) for your OS (Windows or Linux) and extract it.
 
@@ -42,7 +42,19 @@ Before starting the application, check the `settings.txt` file to update it's va
 * `RCON_PORT` is the rcon port of your factorio server (default is 25575).
 * `RCON_PASSWORD` is the rcon password of your factorio server.
 
-(If you are running the server yourself, use the following command line arguments: `--rcon-port 25575 --rcon-password my_password`)
+#### 2.5 Changing Factorio RCON settings to host the server locally
+
+If you are hosting the game locally, instead of a dedicated server then follow these instruction.
+Otherwise if you already have a dedicated server, look up how to enable the RCON interface with a particular port and password.
+
+1. On the main menu screen, hold Ctrl+Alt and then left click "Settings"
+2. Now select the last item "The rest".
+3. By `local-rcon-socket`, enter `0.0.0.0:25575`
+4. By `local-rcon-password`, enter `my_password` (or any secret password, the same one as in settings.txt)
+5. Then click confirm, and go back to the main menu.
+6. Click Multiplayer -> Host a save game
+7. Select the game you want to host.
+8. Click Play
 
 #### 3. Prepare factorio server
 
@@ -59,7 +71,7 @@ To bypass it, click `More info` -> `Run anyway`
 
 On first launch, it will open your browser and ask you to authorize the `FactorioChatBot` app created earlier. Make sure you're logged in with the same account used earlier (if you are not, copy the url and paste it into an incognito window where you can login to the appropriate account).
 
-Then copy the oauth token and paste it into the textbox of the application.
+Then copy the oauth token and paste it into the textbox of the application (using Ctrl+V).
 
 #### 5. Start the chatbot
 
