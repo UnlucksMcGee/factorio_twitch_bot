@@ -12,6 +12,8 @@ NOTE: The application runs commands on the server, thus achievements will be dis
 
 ## How to run
 
+[Youtube tutorial](https://youtu.be/QMk73avr_fE) for Windows 10 and running a headless Factorio server locally on your pc.
+
 Download the latest release [here](https://github.com/UnlucksMcGee/factorio_twitch_bot/releases) for your OS (Windows or Linux) and extract it.
 
 #### 1. Generate client ID
